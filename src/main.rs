@@ -27,20 +27,21 @@ fn rotate_file(filename: String) -> IOResult<String> {
     let mut contents: Vec<u8> = Vec::new();
     try!(file.read_to_end(&mut contents));
 
-    let encoded_str = String::from_utf8(contents).unwrap()
-                                                 .chars()
-                                                 .map(rot13)
-                                                 .collect::<String>();
+    let encoded_str = String::from_utf8(contents)
+                          .unwrap()
+                          .chars()
+                          .map(rot13)
+                          .collect::<String>();
     Ok(encoded_str)
 }
 
 fn main() {
-    let rotated = env::args().nth(1)
-        .map_or_else(|| rotate_stdin(),
-                     |filename| rotate_file(filename));
+    let rotated = env::args()
+                      .nth(1)
+                      .map_or_else(|| rotate_stdin(), |filename| rotate_file(filename));
 
     match rotated {
         Ok(text) => println!("{}", text),
-        Err(err) => println!("Error: {}", err)
+        Err(err) => println!("Error: {}", err),
     }
 }
