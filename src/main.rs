@@ -3,6 +3,8 @@ use std::fs::File;
 use std::io;
 use std::io::Read;
 
+type IOResult<T> = Result<T, io::Error>;
+
 fn rot13(c: char) -> char {
     let base = match c {
         'a'...'z' => 'a' as u8,
@@ -14,13 +16,13 @@ fn rot13(c: char) -> char {
     (rotated + base) as char
 }
 
-fn rotate_stdin() -> Result<String, io::Error> {
+fn rotate_stdin() -> IOResult<String> {
     let mut buffer = String::new();
     try!(io::stdin().read_to_string(&mut buffer));
     Ok(buffer.chars().map(rot13).collect::<String>())
 }
 
-fn rotate_file(filename: String) -> Result<String, io::Error> {
+fn rotate_file(filename: String) -> IOResult<String> {
     let mut file = try!(File::open(filename));
     let mut contents: Vec<u8> = Vec::new();
     try!(file.read_to_end(&mut contents));
@@ -36,5 +38,9 @@ fn main() {
     let rotated = env::args().nth(1)
         .map_or_else(|| rotate_stdin(),
                      |filename| rotate_file(filename));
-    println!("{}", rotated.unwrap());
+
+    match rotated {
+        Ok(text) => println!("{}", text),
+        Err(err) => println!("Error: {}", err)
+    }
 }
